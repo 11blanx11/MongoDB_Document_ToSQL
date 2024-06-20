@@ -5,8 +5,8 @@ import db as db
 
 table_name = ["booking_credentials", "flight_data", "hotel_data", "invoice_data"]
 
-
-with open("data.json", "r") as f:
+recordcount = 0
+with open("100_data_entries.json", "r") as f:
     datafile = json.loads(f.read())  # --------------Reading the Json File-------------
 
     # --------Single Document Handling--------------------
@@ -14,7 +14,7 @@ with open("data.json", "r") as f:
         # ---------------Initializing Tables--------------
         Column_Names = ["org_name", "expense_client_id", "Booking_ID", "BookingType"]
         dfMain = pd.DataFrame(columns=Column_Names)
-        Column_Names = ["Booking_ID", "invoiceUrl", "No_Of_Invoices_with_Url"]
+        Column_Names = ["Booking_ID"]
         dfInvoice = pd.DataFrame(columns=Column_Names)
         dfFlight = pd.DataFrame()
         dfHotel = pd.DataFrame()
@@ -48,14 +48,19 @@ with open("data.json", "r") as f:
 
             message = pd.Series(bookingObj[0])
             templist = [message]
-            dfFlight = pd.DataFrame(
+            dflist[1] = pd.DataFrame(
                 templist
             )  # Creating a dataframe for a row entry for one record
 
             # --------Managing Column Names----------
             keyslist[0] = list(message.keys())
-            keyslist[1] = [s.replace(" ", "_") for s in keyslist[0]]
-            dfFlight.columns = keyslist[1]
+            keyslist[0] = db.null_column_handling(keyslist[0])
+
+            keyslist[1] = db.column_rename(keyslist[0])
+            dflist[1].columns = keyslist[1]
+
+            # Adding to SQl table - Recreating table if key is different
+            db.upload_df_to_sql(dflist[1], table_name[1])
 
         # ------------Hotel Data Handling-----------
         elif dataelement["booking_type"] == "HOTEL":
@@ -64,14 +69,19 @@ with open("data.json", "r") as f:
 
             message = pd.Series(bookingObj[0])
             templist = [message]
-            dfHotel = pd.DataFrame(
+            dflist[2] = pd.DataFrame(
                 templist
             )  # Creating a dataframe for a row entry for one record
 
             # --------Managing Column Names----------
-            keyslist[0] = list(message.keys())
-            keyslist[1] = [s.replace(" ", "_") for s in keyslist[0]]
-            dfHotel.columns = keyslist[1]
+            keyslist[0] = db.null_column_handling(list(message.keys()))
+            keyslist[0] = db.null_column_handling(keyslist[0])
+
+            keyslist[1] = db.column_rename(keyslist[0])
+            dflist[2].columns = keyslist[1]
+
+            # Adding to SQl table - Recreating table if key is different
+            db.upload_df_to_sql(dflist[2], table_name[2])
 
         # -------Invoice Data Handling----------
         for InvoiceObj in dataelement["invoice_data"]:
@@ -128,3 +138,6 @@ with open("data.json", "r") as f:
 
         db.upload_df_to_sql(dflist[3], table_name[3])
         # ------Invoice Table Row Created-------
+
+        recordcount += 1
+        print(f"Entry Done for Record : {recordcount}")

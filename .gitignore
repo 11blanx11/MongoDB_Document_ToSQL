@@ -3,3 +3,7 @@
 #Ignore JSON files
 *.json
 *.JSON
+
+
+#Ignore all pycache files
+*__pycache__/

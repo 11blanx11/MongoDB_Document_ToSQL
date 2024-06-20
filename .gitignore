@@ -6,4 +6,4 @@
 
 
 #Ignore all pycache files
-*__pycache__/
+*__pycache__/ 

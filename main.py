@@ -91,6 +91,8 @@ with open("100_data_entries.json", "r") as f:
             bookingID = InvoiceObj["bookingId"]
             eVl, mmtl, gstl = [], [], []
             invoiceurllist = [eVl, mmtl, gstl]
+            mmtinvoiceactionlist = []
+            invoiceactionlist = []
             for eVObj in InvoiceObj["invoiceTypeWiseData"]["eVOUCHER"]:
                 try:
                     # print(f'Invoice Date = {GSTObj['invoiceDate']}, InvoiceURL = {GSTObj['invoiceUrl']}')
@@ -104,6 +106,7 @@ with open("100_data_entries.json", "r") as f:
                 try:
                     # print(f'Invoice Date = {GSTObj['invoiceDate']}, InvoiceURL = {GSTObj['invoiceUrl']}')
                     invoiceurllist[1].append(MMTObj["invoiceUrl"])
+                    mmtinvoiceactionlist.append(MMTObj["action"])
                     count[1] += 1
                 except KeyError:
                     # print(f'No MMT Invoice URL found')
@@ -113,6 +116,7 @@ with open("100_data_entries.json", "r") as f:
                 try:
                     # print(f'Invoice Date = {GSTObj['invoiceDate']}, InvoiceURL = {GSTObj['invoiceUrl']}')
                     invoiceurllist[2].append(GSTObj["invoiceUrl"])
+                    invoiceactionlist.append(GSTObj["action"])
                     count[2] += 1
                 except KeyError:
                     # print(f'No GST Invoice URL found')
@@ -121,15 +125,22 @@ with open("100_data_entries.json", "r") as f:
             invoiceurllist[0] = json.dumps(invoiceurllist[0])
             invoiceurllist[1] = json.dumps(invoiceurllist[1])
             invoiceurllist[2] = json.dumps(invoiceurllist[2])
+            mmtinvoiceactionlist = json.dumps(mmtinvoiceactionlist)
+            invoiceactionlist = json.dumps(invoiceactionlist)
             message = {
                 "Booking_ID": bookingID,
                 "eVoucherinvoiceUrl": invoiceurllist[1],
                 "eVoucher_Invoices_with_Url": count[0],
+                "MMTinvoiceAction": mmtinvoiceactionlist,
                 "MMTinvoiceUrl": invoiceurllist[1],
                 "MMT_Invoices_with_Url": count[1],
+                "GSTinvoiceAction": invoiceactionlist,
                 "GSTinvoiceUrl": invoiceurllist[2],
                 "GST_Invoices_with_Url": count[2],
             }
+
+            # Might have to create a new primary Key with BookingID+InvoiceAction or BookingAction
+            print(mmtinvoiceactionlist)
             invoicelist.append(message)
             dftemp = pd.DataFrame(invoicelist)
             dflist[3] = pd.concat(

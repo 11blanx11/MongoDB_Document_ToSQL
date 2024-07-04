@@ -148,6 +148,7 @@ with open("100_data_entries.json", "r") as f:
             )  # Creating a row for the Invoice Table
 
         db.upload_df_to_sql(dflist[3], table_name[3])
+        
         # ------Invoice Table Row Created-------
 
         recordcount += 1

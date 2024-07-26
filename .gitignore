@@ -1,8 +1,14 @@
 *.venv/
 
-#Ignore JSON files
+#Ignore Config Files
+config.py
+
+#Ignore files
 *.json
 *.JSON
+*.csv
+*.txt
+
 
 
 #Ignore all pycache files
